@@ -9,7 +9,7 @@
     $_SESSION['usuario'] = $usuario;
 
     // Establecer una conexión con la base de datos usando mysqli_connect.
-    $conexion = mysqli_connect("localhost","recibosr_root","Card0045#@","recibosr_auth");
+    $conexion = mysqli_connect("localhost","root","","recibosr_auth");
 
     // Verificar si la conexión fue exitosa.
     if (!$conexion) {
@@ -37,35 +37,20 @@
     if (mysqli_num_rows($resultado) > 0){
         $filas = mysqli_fetch_array($resultado);
         if ($filas && isset($filas['id_cargo'])){       
-            if($filas['id_cargo']==1 && $filas['usuario']=="CARLOS_SISTEM" ){ //ADMINISTRADOR
+            if($filas['id_cargo']==1 && $filas['usuario']=="Admin" ){ //ADMINISTRADOR SISTEMAS
                 header("location:../php/menu-admin.php");
                 exit();
-            }else if($filas['id_cargo']==1 && $filas['usuario']!="CARLOS_SISTEM"){ //FATIMA FINANZAS  
-                header("location:MENU-ADMIN_FATIMA_HISTORICO_SYSTEM-OTRO.php");
+            }else if($filas['id_cargo']==1 && $filas['usuario']!="Admin"){ //AREA SISTEMAS
+                header("location:../php/menu-admin_historico.php");
                 exit();
-            }else if($filas['id_cargo']==2){ //FATIMA FINANZAS
-                header("location:MENU-FATIMA_PRINCIPAL.php");
+            }else if($filas['id_cargo']==2){ //ADMINISTRADOR FINANZAS
+                header("location:../php/menu-admin_historico.php");
                 exit();
-            }else if($filas['id_cargo']==3){ //CONTABILIDAD
-                header("location:MENU-CONTABILIDAD_FATIMA_HISTORICO.php");
+            }else if($filas['id_cargo']==3){ //USUARIO CONTABLE
+                header("location:../php/");
                 exit();
             }else if($filas['id_cargo']==4){ //USUARIO GENERAL
-                header("location:MENU-ADMIN_FATIMA_HISTORICO_PRODUCCION.php");
-                exit();
-            }else if($filas['id_cargo']==5){ //RECURSOS HUMANOS
-                header("location:MENU-ADMIN_FATIMA_HISTORICO_FINANZASPRESUPUESTOS.php");
-                exit();
-            }else if($filas['id_cargo']==6){ //DISEÑO
-                header("location:MENU-ADMIN_FATIMA_HISTORICO_DISENO.php");
-                exit();
-            }else if($filas['id_cargo']==7){ //MK
-                header("location:MENU-ADMIN_FATIMA_HISTORICO_MK.php");
-                exit();
-            }else if($filas['id_cargo']==8){ //VENTAS
-                header("location:MENU-ADMIN_FATIMA_HISTORICO_VENTAS.php");
-                exit();
-            }else if($filas['id_cargo']==9){ //MH
-                header("location:MENU-ADMIN_FATIMA_HISTORICO_MH.php");
+                header("location:../php/");
                 exit();
             }
         }else {

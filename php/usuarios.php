@@ -82,8 +82,6 @@
 
 
 
-
-
         <div id="userModal" class="modal">
             <div class="modal-contenedor">
                 <span class="cerrar">&times;</span><br><br>
@@ -120,7 +118,7 @@
 				        <select id="id_cargo" name="id_cargo" class="boton-listado-registro">
 				            <option value="" class="texto-simple-grey">--SELECCIONAR--</option>
 				            <option value="1">SISTEMAS</option>
-                            <option value="2">FATIMA</option>
+                            <option value="2">FINANZAS</option>
                             <option value="3">CONTABILIDAD</option>
                             <option value="4">GENERAL</option>
                         </select><br>
@@ -146,8 +144,6 @@
                 </form>
             </div>
         </div>
-
-
 
 
 
