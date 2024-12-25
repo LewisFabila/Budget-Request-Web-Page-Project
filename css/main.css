@@ -452,7 +452,7 @@ tr:hover td{
     animation: abrirModal 0.3s ease-out;
 }
 
-.cerrar {
+.cerrarAdd, .cerrarEdit{
     position: absolute;
     top: 20px;
     right: 40px;
@@ -463,8 +463,10 @@ tr:hover td{
     transition: .2s;
 }
 
-.cerrar:hover,
-.cerrar:focus {
+.cerrarAdd:hover,
+.cerrarAdd:focus,
+.cerrarEdit:hover,
+.cerrarEdit:focus {
     color: var(--clr-red);
     transition: .2s;
 }

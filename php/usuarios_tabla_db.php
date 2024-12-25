@@ -97,7 +97,7 @@
             $output['data'] .= '<td><div>'.$row['usuario'].'</div></td>';
             $output['data'] .= '<td><div>'.$row['password'].'</div></td>';
             $output['data'] .= '<td><div>'.$row['descripcion'].'</div></td>';
-            $output['data'] .= '<td><a class="texto-simple-bla" href="usuarios_editar.php?id=' . $row['id'] . '"><div><span style="color: white;"><i class="bi bi-pencil-square"></i></span></a></div></td>';
+            $output['data'] .= '<td><a href="javascript:void(0);" class="texto-simple-bla" onclick="openEditModal(' . $row['id'] . ')"><div><span style="color: white;"><i class="bi bi-pencil-square"></i></span></a></div></td>';
             $output['data'] .= '<td><div class="checkbox-wrapper-39">
                                 <label>
                                     <input type="checkbox" id="" class="">

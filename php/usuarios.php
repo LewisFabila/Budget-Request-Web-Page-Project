@@ -1,14 +1,16 @@
 <?php
-    //Seguridad de sesiones paginacion
+    //Seguridad de sesiones paginacion.
     session_start();
     error_reporting(0);
     $varsesion= $_SESSION['usuario'];
-    if($varsesion== null || $varsesion=''){
+    if($varsesion == null || $varsesion == ''){
         header("location:../index.html");
         die();
     }
 
     require 'usuarios_conexion.php';
+
+    // Obtener Registros.
     $sql="SELECT * FROM login";
     $query=mysqli_query($conn,$sql);
     $dataRegistro=mysqli_fetch_array($query);
@@ -27,7 +29,7 @@
         <header>
             <nav>
                 <a class="op-actualizar" onclick="window.location.reload()"><i class="bi bi-arrow-clockwise"></i> ACTUALIZAR</a>
-                <a class="op-nuevo" id="openModal"><i class="bi bi-person-fill-add"></i> NUEVO REGISTRO</a>
+                <a class="op-nuevo" id="openAddModal"><i class="bi bi-person-fill-add"></i> NUEVO REGISTRO</a>
                 <a type="submit" class="op-eliminar"><i class="bi bi-person-dash"></i> ELIMINAR REGISTROS</a>              
                 <ul>
                     <li><a class="op-texto"><i class="bi bi-person-circle"></i> <?php echo $_SESSION['usuario']?></li>
@@ -36,6 +38,7 @@
                 </ul>
             </nav>
         </header><br>
+        
         <div class="contenedor-filtrado">
             <form action="" method="post">
                 <div>
@@ -80,29 +83,26 @@
             <input type="hidden" id="orderType" value="asc">
         </div>
 
-
-
-        <div id="userModal" class="modal">
+        <div id="AddModal" class="modal">
             <div class="modal-contenedor">
-                <span class="cerrar">&times;</span><br><br>
-                <form method="POST" action="usuarios_guardar.php" enctype="multipart/form-data" autocomplete="on">
-                    
-                    <input type="hidden" name="id" id="id">
-                    
+                <span class="cerrarAdd">&times;</span><br>
+                <form method="POST" action="usuarios_guardar.php" enctype="multipart/form-data" autocomplete="on" id="AddForm" onsubmit="return validarContraseña('AddForm')">                 
+                    <input type="hidden" name="id" id="idAdd">
+                    <div>
+                        <label class="texto-simple-whi">NUEVO REGISTRO</label><br>
+                    </div>
                     <div>
                         <label label for="nombre" class="texto-simple-whi"><i class="bi bi-person-fill"></i> NOMBRE</label>
-                        <input type="text" class="barra-registro" name="nombre" id="nombre" placeholder=""><br>
+                        <input type="text" class="barra-registro" name="nombre" id="nombreAdd" placeholder=""><br>
                     </div>
-
                     <div>
                         <label label for="usuario" class="texto-simple-whi"><i class="bi bi-person-circle"></i> USUARIO</label>
-                        <input type="text" class="barra-registro" name="usuario" id="usuario" placeholder=""><br>
+                        <input type="text" class="barra-registro" name="usuario" id="usuarioAdd" placeholder=""><br>
                     </div>
-
                     <div>
                     <label for="area" class="texto-simple-whi"><i class="bi bi-pin-map-fill"></i> AREA</label>
-                        <select name="area" id="area" class="boton-listado-registro">
-                            <option class="texto-simple-grey">--SELECCIONAR--</option>
+                        <select name="area" id="areaAdd" class="boton-listado-registro">
+                            <option value="" disabled selected>--SELECCIONAR--</option>
                             <?php   
 				                include ('usuarios_area.php');
 				                $areA = mysqli_query($conn, "SELECT * FROM area_user");
@@ -112,54 +112,113 @@
 				            <?php }?></option>
                         </select><br>
                     </div>
-
                     <div>
 				        <label label for="id_cargo" class="texto-simple-whi"><i class="bi bi-person-badge-fill"></i> TIPO DE USUARIO</label>
-				        <select id="id_cargo" name="id_cargo" class="boton-listado-registro">
-				            <option value="" class="texto-simple-grey">--SELECCIONAR--</option>
-				            <option value="1">SISTEMAS</option>
-                            <option value="2">FINANZAS</option>
-                            <option value="3">CONTABILIDAD</option>
-                            <option value="4">GENERAL</option>
-                        </select><br>
-			        </div>
-                    
+				        <select name="id_cargo" id="id_cargoAdd" class="boton-listado-registro">
+                        <option value="" disabled selected>--SELECCIONAR--</option>
+                        <?php   
+                            $areA = mysqli_query($conn, "SELECT * FROM cargo");
+                            while($a = mysqli_fetch_array($areA)){
+                                $selected = ($a['id'] == $row['id_cargo']) ? 'selected' : '';
+                                echo "<option value='".$a['id']."' $selected>".$a['descripcion']."</option>";
+                            }
+                        ?>
+                    </select><br>
+			        </div>                   
                     <div>
                         <label label for="password" class="texto-simple-whi"><i class="bi bi-key-fill"></i> CONTRASEÑA</label>
-                        <input type="password" class="barra-registro" name="password" id="password" placeholder=""><br>
+                        <input type="password" class="barra-registro" name="password" id="passwordAdd" placeholder=""><br>
                         <div class="op-texto-white"> Mostrar Contraseña:</div>
                         <div class="checkbox-wrapper-39">
                         <label>
-                            <input type="checkbox" id="checkContraseña" onclick="mostrar()"/>
+                            <input type="checkbox" id="checkContraseñaAdd" onclick="mostrarPassAdd()"/>
                             <span class="checkbox"></span>
                         </label>
                     </div>
-
                     </div>
                     <div class="contenedor-botones-login">
-                        <input class="boton-op" type="submit" name="submit" id="submit" value="GUARDAR">
-                        <input class="boton-op" type="reset" name="reset" id="reset" value="BORRAR">
+                        <input class="boton-op" type="submit" name="submit" id="submitAdd" value="GUARDAR">
+                        <input class="boton-op" type="reset" name="reset" id="resetAdd" value="BORRAR">
                     </div>
-
+                </form>
+            </div>
+        </div>
+        
+        <div id="EditModal" class="modal">
+            <div class="modal-contenedor">
+                <span class="cerrarEdit">&times;</span><br>
+                <form method="POST" action="usuarios_actualizar.php" enctype="multipart/form-data" autocomplete="on" id="EditForm" onsubmit="return validarContraseña('EditForm')">
+                    <input type="hidden" name="id" id="idEdit" value="<?php echo $row['id']; ?>">
+                    <div>
+                        <label class="texto-simple-whi">EDITAR REGISTRO</label><br>
+                    </div>
+                    <div>
+                        <label label for="nombre" class="texto-simple-whi"><i class="bi bi-person-fill"></i> NOMBRE</label>
+                        <input type="text" class="barra-registro" name="nombre" id="nombreEdit" value="<?php echo $row['nombre']; ?>" placeholder=""><br>
+                    </div>
+                    <div>
+                        <label label for="usuario" class="texto-simple-whi"><i class="bi bi-person-circle"></i> USUARIO</label>
+                        <input type="text" class="barra-registro" name="usuario" id="usuarioEdit" value="<?php echo $row['usuario']; ?>" placeholder=""><br>
+                    </div>
+                    <div>
+                        <label for="area" class="texto-simple-whi"><i class="bi bi-pin-map-fill"></i> AREA</label>
+                        <select name="area" id="areaEdit" class="boton-listado-registro">
+                            <option value="" disabled selected>--SELECCIONAR--</option>
+                            <?php   
+                                include('usuarios_area.php');
+                                $areA = mysqli_query($conn, "SELECT * FROM area_user");
+                                while($a = mysqli_fetch_array($areA)){
+                                    $selected = ($a['nombre_area'] == $row['area']) ? 'selected' : '';
+                                    echo "<option value='".$a['nombre_area']."' $selected>".$a['nombre_area']."</option>";
+                                }
+                            ?>
+                        </select><br>
+                    </div>
+                    <div>
+	        	        <label label for="id_cargo" class="texto-simple-whi"><i class="bi bi-person-badge-fill"></i> TIPO DE USUARIO</label>
+	        	        <select id="id_cargoEdit" name="id_cargo" class="boton-listado-registro">
+                            <option value="" disabled selected>--SELECCIONAR--</option>
+                            <?php   
+                                $areA = mysqli_query($conn, "SELECT * FROM cargo");
+                                while($a = mysqli_fetch_array($areA)){
+                                    $selected = ($a['id'] == $row['id_cargo']) ? 'selected' : '';
+                                    echo "<option value='".$a['id']."' $selected>".$a['descripcion']."</option>";
+                                }
+                            ?>
+                        </select><br>
+	        	    </div>
+                    <div>
+                        <label label for="password" class="texto-simple-whi"><i class="bi bi-key-fill"></i> CONTRASEÑA</label>
+                        <input type="password" class="barra-registro" name="password" id="passwordEdit" value="<?php echo $row['password']; ?>" placeholder=""><br>
+                        <div class="op-texto-white"> Mostrar Contraseña:</div>
+                        <div class="checkbox-wrapper-39">
+                        <label>
+                            <input type="checkbox" id="checkContraseñaEdit" onclick="mostrarPassEdit()"/>
+                            <span class="checkbox"></span>
+                        </label>
+                    </div>
+                    </div>
+                    <div class="contenedor-botones-login">
+                        <input class="boton-op" type="submit" name="submit" id="submitEdit" value="ACTUALIZAR">
+                        <input class="boton-op" type="reset" name="reset" id="resetEdit" value="BORRAR">
+                    </div>
                 </form>
             </div>
         </div>
 
-
-
         <script>
-            // Invoca la funcion getData.
+            // INVOCA LA FUNCION getData()
             getData()
 
-            // Eventos.
-            document.getElementById("busqueda").addEventListener("keyup", function(){ //Busqueda
+            // EVENTOS DE BUSQUEDA Y PAGINACION:
+            document.getElementById("busqueda").addEventListener("keyup", function(){ //Busqueda.
                 getData()
             }, false);
-            document.getElementById("num_registros").addEventListener("change", function(){ //Paginacion
+            document.getElementById("num_registros").addEventListener("change", function(){ //Paginacion.
                 getData()
             }, false);
 
-            // Peticion AJAX.
+            // Peticion AJAX:
             function getData(){
                 let input = document.getElementById("busqueda").value;
                 let num_registros = document.getElementById("num_registros").value;
@@ -214,36 +273,120 @@
                 getData()
             }
 
-            // Muestra la contraseña al registrar.
-            function mostrar(){
-                var tipo = document.getElementById("password");
-                if(tipo.type == "password"){
-                    tipo.type = "text";
+            // MODAL DE REGISTRO:
+            function mostrarPassAdd(){
+                var tipoAdd = document.getElementById("passwordAdd");
+                if(tipoAdd.type == "password"){
+                    tipoAdd.type = "text";
                 }else{
-                    tipo.type = "password";
+                    tipoAdd.type = "password";
                 }
             }
 
-            // Todo sobre el modal:
-            var modal = document.getElementById("userModal"); // Obtener el modal.
-            var btn = document.getElementById("openModal"); // Obtener el botón que abre el modal.
-            var span = document.getElementsByClassName("cerrar")[0]; // Obtener el elemento <span> que cierra el modal.
-            btn.onclick = function() { // Cuando el usuario hace clic en el botón, abre el modal 
-                modal.style.display = "block";
-            }
+            const modalAdd = document.getElementById("AddModal"); // Obtener el modal.
+            const btnAddModal = document.getElementById("openAddModal"); // Obtener el botón que abre el modal.
+            const spanAdd = document.querySelector(".cerrarAdd"); // Obtener el primer elemento con clase "cerrarAdd".
 
-            // Cuando el usuario hace clic en <span> (x), cierra el modal
-            span.onclick = function() {
-                modal.style.display = "none";
-            }
+            
+            const openModal = () => { // Función para abrir el modal.
+                modalAdd.style.display = "block";
+            };
 
-            // Cuando el usuario hace clic en cualquier lugar fuera del modal, cierra el modal.
-            window.onclick = function(event) {
-                if (event.target == modal) {
-                    modal.style.display = "none";
+            
+            const closeModal = () => { // Función para cerrar el modal.
+                modalAdd.style.display = "none";
+            };
+
+            btnAddModal.addEventListener("click", openModal); // Event listener para abrir el modal.
+            
+            spanAdd.addEventListener("click", closeModal); // Event listener para cerrar el modal al hacer clic en el botón "cerrar".
+
+            window.addEventListener("click", (event) => { // Event listener para cerrar el modal cuando se hace clic fuera de él.
+                if (event.target === modalAdd) {
+                    closeModal();
+                }
+            });
+            
+            // MODAL DE EDICION:
+            function mostrarPassEdit(){
+                var tipoEdit = document.getElementById("passwordEdit");
+
+                if(tipoEdit.type == "password"){
+                    tipoEdit.type = "text";
+                }else{
+                    tipoEdit.type = "password";
                 }
             }
 
+            // Función para abrir el modal y obtener los datos del usuario:
+            function openEditModal(userId) {
+                const modalEdit = document.getElementById("EditModal");
+                const spanEdit = document.querySelector(".cerrarEdit"); // Se selecciona el primer elemento con la clase "cerrarEdit".
+            
+                // Realizamos la petición AJAX usando fetch.
+                const url = "usuarios_editar.php"; // URL del servidor que procesa la edición.
+                const formData = new FormData();
+                formData.append("id", userId);
+            
+                // Usamos fetch para obtener los datos del usuario.
+                fetch(url, {
+                    method: "POST",
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Llenamos los campos del modal con los datos obtenidos.
+                    document.getElementById("idEdit").value = data.id;
+                    document.getElementById("nombreEdit").value = data.nombre;
+                    document.getElementById("usuarioEdit").value = data.usuario;
+                    document.getElementById("areaEdit").value = data.area;
+                    document.getElementById("id_cargoEdit").value = data.id_cargo;
+                    document.getElementById("passwordEdit").value = data.password;
+                    modalEdit.style.display = "block"; // Mostramos el modal.
+                })
+                .catch(error => {
+                    console.error("Error al obtener los datos del usuario:", error);
+                });
+            
+                const closeModal = () => { // Función para cerrar el modal.
+                    modalEdit.style.display = "none";
+                };
+
+                spanEdit.addEventListener("click", closeModal); // Añadimos el evento para cerrar el modal al hacer clic en el botón "cerrar".
+
+                window.addEventListener("click", (event) => { // Añadimos el evento para cerrar el modal si se hace clic fuera de él.
+                    if (event.target === modalEdit) {
+                        closeModal();
+                    }
+                });
+            }
+
+            // MENSAJE DE ERROR PARA EL FORMULARIO DE AGREGAR USUARIO:
+            document.getElementById('AddForm').addEventListener('submit', function(event) {
+                var seleccionAddForm = ['areaAdd','id_cargoAdd'];
+                var mensajeError = "Por favor, selecciona opciones validas.";
+
+                for (var i = 0; i < seleccionAddForm.length; i++) {
+                    var selectAddForm = document.getElementById(seleccionAddForm[i]);
+                    if (selectAddForm.value === "") {
+                        alert(mensajeError);
+                        event.preventDefault(); // Evita el envío del formulario.
+                        break; // Detiene la ejecución del ciclo si ya se detectó un error.
+                    }
+                }
+            });
+
+            // MENSAJE DE ERROR SI LA CONTRASEÑA ES INFERIOR A 8 CARACTERES:
+            function validarContraseña(formId) {
+                var form = document.getElementById(formId);
+                var password = form.querySelector('input[name="password"]').value;
+
+                if (password.length < 8) {
+                    alert('La contraseña debe tener al menos 8 caracteres.');
+                    return false;  // Previene el envío del formulario.
+                }
+                return true;  // Permite el envío del formulario.
+            }
         </script>
     </body>
 </html>
