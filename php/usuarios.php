@@ -30,7 +30,7 @@
             <nav>
                 <a class="op-actualizar" onclick="window.location.reload()"><i class="bi bi-arrow-clockwise"></i> ACTUALIZAR</a>
                 <a class="op-nuevo" id="openAddModal"><i class="bi bi-person-fill-add"></i> NUEVO REGISTRO</a>
-                <a type="submit" class="op-eliminar"><i class="bi bi-person-dash"></i> ELIMINAR REGISTROS</a>              
+                <a class="op-eliminar" id="delUsersBtn"><i class="bi bi-person-dash"></i> ELIMINAR REGISTROS</a>              
                 <ul>
                     <li><a class="op-texto"><i class="bi bi-person-circle"></i> <?php echo $_SESSION['usuario']?></li>
                     <li><a class="op-texto" onClick="history.go(-1);"><i class="bi bi-arrow-return-left"></i> REGRESAR</a></li>
@@ -207,7 +207,7 @@
         </div>
 
         <script>
-            // INVOCA LA FUNCION getData()
+            // INVOCA LA FUNCION getData() PARA OBTENER LOS DATOS DE TABLA.
             getData()
 
             // EVENTOS DE BUSQUEDA Y PAGINACION:
@@ -287,11 +287,9 @@
             const btnAddModal = document.getElementById("openAddModal"); // Obtener el botón que abre el modal.
             const spanAdd = document.querySelector(".cerrarAdd"); // Obtener el primer elemento con clase "cerrarAdd".
 
-            
             const openModal = () => { // Función para abrir el modal.
                 modalAdd.style.display = "block";
             };
-
             
             const closeModal = () => { // Función para cerrar el modal.
                 modalAdd.style.display = "none";
@@ -322,7 +320,7 @@
             function openEditModal(userId) {
                 const modalEdit = document.getElementById("EditModal");
                 const spanEdit = document.querySelector(".cerrarEdit"); // Se selecciona el primer elemento con la clase "cerrarEdit".
-            
+
                 // Realizamos la petición AJAX usando fetch.
                 const url = "usuarios_editar.php"; // URL del servidor que procesa la edición.
                 const formData = new FormData();
@@ -386,6 +384,49 @@
                     return false;  // Previene el envío del formulario.
                 }
                 return true;  // Permite el envío del formulario.
+            }
+
+            // FUNCION DE ELIMINACION DE USUARIOS:
+            document.getElementById("delUsersBtn").addEventListener("click", function() {
+                let checkboxes = document.querySelectorAll('.checkbox-delete:checked'); // Obtenemos los checkboxes seleccionados
+
+                // Mensaje de error al intentar eliminar sin ningun checkbox seleccionado.
+                if (checkboxes.length === 0) {
+                    alert("Por favor, selecciona al menos un usuario.");
+                    return;
+                }
+
+                // Creamos un arreglo con los IDs de los usuarios seleccionados.
+                let idsSeleccionados = [];
+                checkboxes.forEach(function(checkbox) {
+                    idsSeleccionados.push(checkbox.getAttribute('data-id'));
+                });
+
+                // Confirmamos si el usuario está seguro de eliminar los registros.
+                if (confirm("¿Estás seguro de eliminar los usuarios seleccionados?")) {
+                    eliminarUsuarios(idsSeleccionados);
+                }
+            });
+
+            // ENVIO DE IDs AL SERVIDOR PARA ELIMINACION:
+            function eliminarUsuarios(ids) {
+                let formData = new FormData();
+
+                formData.append('ids', JSON.stringify(ids)); // Convertimos el arreglo a JSON
+                fetch('usuarios_eliminar.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Usuarios eliminados correctamente.');
+                        getData();  // Recargamos la tabla de usuarios
+                    } else {
+                        alert('Hubo un error al intentar eliminar.');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
             }
         </script>
     </body>

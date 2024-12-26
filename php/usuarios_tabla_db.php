@@ -100,7 +100,7 @@
             $output['data'] .= '<td><a href="javascript:void(0);" class="texto-simple-bla" onclick="openEditModal(' . $row['id'] . ')"><div><span style="color: white;"><i class="bi bi-pencil-square"></i></span></a></div></td>';
             $output['data'] .= '<td><div class="checkbox-wrapper-39">
                                 <label>
-                                    <input type="checkbox" id="" class="">
+                                    <input type="checkbox" class="checkbox-delete" data-id="' . $row['id'] . '">
                                     <span class="checkbox"></span>
                                 </label></div></td>';
             $output['data'] .= '</tr>';
